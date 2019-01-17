@@ -1,16 +1,18 @@
-### Author : Anish Sibal 
+### Author : Anish Sibal
 import io
 import paramiko
 import socks
 import re
 import os
 import logging
+import getpass
 
 
 class SshClient:
   "Wrapper for paramiko SSHClient. Supports socks5 proxy, reading ssh agent keys and sudo passwords"
-
-  def __init__(self, host, port, username=None, password=None, key=None, passphrase=None, timeout=TIMEOUT):
+  TIMEOUT = 20
+  username = getpass.getuser()
+  def __init__(self, host, port=22, username=username, password=None, key=None, passphrase=None, timeout=TIMEOUT):
     self.username = username
     self.password = password
     self.client = paramiko.SSHClient()
@@ -21,7 +23,7 @@ class SshClient:
     if re.match(r'socks5', os.environ['http_proxy']):
       # For production use socks5 proxy
       proxy_host, proxy_port = (re.sub(r'^socks5://', "",os.environ['http_proxy'])).split(':')
-      socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_host, proxy_port, False)
+      socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_host, int(proxy_port), False)
       paramiko.client.socket.socket = socks.socksocket
       logging.info("Using Socks5 Proxy")
 
@@ -33,6 +35,7 @@ class SshClient:
           self.client.connect(host, port, username=username, password=password,
                               pkey=mykey, timeout=timeout, allow_agent=False)
           conn = True
+          break
         except:
           pass
 
