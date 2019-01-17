@@ -56,7 +56,7 @@ class SshClient:
   def execute(self, command, sudo=False):
     feed_password = False
     if sudo and self.username != "root":
-      loggging.info("Using sudo")
+      logging.info("Using sudo")
       command = "sudo -S -p '' %s" % command
       feed_password = self.password is not None and len(self.password) > 0
 
