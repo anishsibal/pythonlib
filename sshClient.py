@@ -20,12 +20,13 @@ class SshClient:
 
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
-    if re.match(r'socks5', os.environ['http_proxy']):
-      # For production use socks5 proxy
-      proxy_host, proxy_port = (re.sub(r'^socks5://', "",os.environ['http_proxy'])).split(':')
-      socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_host, int(proxy_port), False)
-      paramiko.client.socket.socket = socks.socksocket
-      logging.info("Using Socks5 Proxy")
+    if 'http_proxy' in os.environ:
+      if re.match(r'socks5', os.environ['http_proxy']):
+        # For production use socks5 proxy
+        proxy_host, proxy_port = (re.sub(r'^socks5://', "",os.environ['http_proxy'])).split(':')
+        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy_host, int(proxy_port), False)
+        paramiko.client.socket.socket = socks.socksocket
+        logging.info("Using Socks5 Proxy")
 
     conn = False
 
